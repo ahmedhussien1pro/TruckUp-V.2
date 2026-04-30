@@ -16,18 +16,18 @@ TrackUp helps confused EE students move from uncertainty to a clear specializati
 
 ## Pages
 
-| Route | Description |
-|---|---|
-| `/` | Landing page |
-| `/test` | Assessment intro |
-| `/test/[1-15]` | 15-question test flow |
-| `/test/result` | Ranked results + premium CTA |
-| `/tracks` | Tracks overview |
-| `/tracks/[slug]` | Track detail page |
+| Route             | Description                    |
+| ----------------- | ------------------------------ |
+| `/`               | Landing page                   |
+| `/test`           | Assessment intro               |
+| `/test/[1-15]`    | 15-question test flow          |
+| `/test/result`    | Ranked results + premium CTA   |
+| `/tracks`         | Tracks overview                |
+| `/tracks/[slug]`  | Track detail page              |
 | `/roadmap/[slug]` | 90-day roadmap (free + locked) |
-| `/pricing` | Pricing tiers + FAQ |
-| `/mentors` | Mentor listing |
-| `/mentors/[id]` | Session booking |
+| `/pricing`        | Pricing tiers + FAQ            |
+| `/mentors`        | Mentor listing                 |
+| `/mentors/[id]`   | Session booking                |
 
 ---
 
@@ -48,9 +48,3 @@ TrackUp helps confused EE students move from uncertainty to a clear specializati
 npm install
 npm run dev
 ```
-
-## Deployment
-
-Deploy to Vercel in one click. No environment variables required for the base MVP.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ahmedhussien1pro/TruckUp-V.2)
