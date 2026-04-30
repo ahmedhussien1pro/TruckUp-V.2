@@ -3,43 +3,48 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Dark theme for developer SaaS platform */
+/* =====================
+   LIGHT THEME (default)
+   ===================== */
 :root {
-  --background: oklch(0.09 0 0);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.98 0 0);
-  --primary-foreground: oklch(0.09 0 0);
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.6 0 0);
+  --background: oklch(0.98 0 0);
+  --foreground: oklch(0.08 0 0);
+  --card: oklch(0.96 0 0);
+  --card-foreground: oklch(0.08 0 0);
+  --popover: oklch(0.96 0 0);
+  --popover-foreground: oklch(0.08 0 0);
+  --primary: oklch(0.08 0 0);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.93 0 0);
+  --secondary-foreground: oklch(0.08 0 0);
+  --muted: oklch(0.93 0 0);
+  --muted-foreground: oklch(0.45 0 0);
   --accent: oklch(0.65 0.18 35);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.22 0 0);
-  --input: oklch(0.18 0 0);
-  --ring: oklch(0.5 0 0);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.87 0 0);
+  --input: oklch(0.93 0 0);
+  --ring: oklch(0.6 0 0);
+  --radius: 0.5rem;
   --chart-1: oklch(0.65 0.18 35);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.98 0 0);
-  --sidebar-primary-foreground: oklch(0.09 0 0);
-  --sidebar-accent: oklch(0.18 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.22 0 0);
-  --sidebar-ring: oklch(0.5 0 0);
+  --sidebar: oklch(0.96 0 0);
+  --sidebar-foreground: oklch(0.08 0 0);
+  --sidebar-primary: oklch(0.08 0 0);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.93 0 0);
+  --sidebar-accent-foreground: oklch(0.08 0 0);
+  --sidebar-border: oklch(0.87 0 0);
+  --sidebar-ring: oklch(0.6 0 0);
 }
 
+/* =====================
+   DARK THEME
+   ===================== */
 .dark {
   --background: oklch(0.09 0 0);
   --foreground: oklch(0.98 0 0);
@@ -77,8 +82,7 @@
 
 @theme inline {
   --font-sans: "Geist", "Geist Fallback";
-  /* Added JetBrains Mono for dev-style headings */
-  --font-mono: "JetBrains Mono", "Geist Mono", monospace;
+  --font-mono: "Geist Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -126,33 +130,25 @@
   }
 }
 
-/* Add blink animation for cursor */
-@keyframes blink {
-  0%,
-  50% {
-    opacity: 1;
-  }
-  51%,
-  100% {
-    opacity: 0;
-  }
+/* Smooth theme transitions */
+html {
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Blink cursor animation */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
 .animate-blink {
   animation: blink 1s step-end infinite;
 }
 
-/* Add moving floor animation for CTA section */
+/* Moving floor animation */
 @keyframes moveFloor {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 0 4rem;
-  }
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4rem; }
 }
-
 .animate-floor {
-  /* speed from 1.5s to 0.5s (3x faster) */
   animation: moveFloor 0.5s linear infinite;
 }
