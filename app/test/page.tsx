@@ -4,6 +4,11 @@ import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { TOTAL_QUESTIONS } from "@/lib/assessment-data"
 
+export const metadata = {
+  title: "Career Assessment",
+  description: `${TOTAL_QUESTIONS} structured questions to identify your top electrical engineering specialization. Free, no account needed.`,
+}
+
 export default function TestIntroPage() {
   return (
     <>
@@ -18,13 +23,13 @@ export default function TestIntroPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
-              Free — No account needed
+              Free \u2014 No account needed
             </div>
             <h1 className="text-3xl font-mono font-bold tracking-tight sm:text-4xl mb-4">
               Career Assessment
             </h1>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              {TOTAL_QUESTIONS} questions to identify your top engineering track.
+              {TOTAL_QUESTIONS} questions to identify your top engineering specialization.
               Takes about 15 minutes.
             </p>
           </div>
@@ -48,12 +53,12 @@ export default function TestIntroPage() {
           </div>
 
           {/* What it covers */}
-          <div className="rounded-xl border border-border/50 bg-secondary/20 p-6 mb-8">
+          <div className="rounded-xl border border-border/50 bg-secondary/20 p-6 mb-6">
             <h3 className="text-sm font-semibold mb-3">What this test covers</h3>
             <ul className="space-y-2">
               {[
                 "Your preference between power, embedded, and communications",
-                "How you like to work — field, lab, or office environment",
+                "How you like to work \u2014 field, lab, or office environment",
                 "Your comfort with different types of engineering math",
                 "What kind of real-world problems excite you most",
                 "Your ideal engineering output and long-term direction",
@@ -66,14 +71,14 @@ export default function TestIntroPage() {
             </ul>
           </div>
 
-          {/* Result preview */}
+          {/* What you get */}
           <div className="rounded-xl border border-border/50 bg-secondary/20 p-6 mb-8">
             <h3 className="text-sm font-semibold mb-3">What you will get</h3>
             <div className="space-y-3">
               {[
                 { label: "3 ranked tracks with match scores", free: true },
                 { label: "Your profile summary", free: true },
-                { label: "Roadmap preview — first 30 days", free: true },
+                { label: "Roadmap preview \u2014 first 30 days", free: true },
                 { label: "Full recommendation reasoning", free: false },
                 { label: "Full 90-day roadmap", free: false },
                 { label: "Recorded preview sessions", free: false },
@@ -84,10 +89,11 @@ export default function TestIntroPage() {
                   ) : (
                     <Lock className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
                   )}
-                  <span className={`text-sm ${item.free ? "" : "text-muted-foreground/50"}`}>
-                    {item.item}
+                  <span className={`text-sm ${!item.free ? "text-muted-foreground/50" : ""}`}>
                     {item.label}
-                    {!item.free && <span className="ml-2 text-[10px] font-mono text-muted-foreground/40 border border-border/30 rounded px-1">PRO</span>}
+                    {!item.free && (
+                      <span className="ml-2 text-[10px] font-mono text-muted-foreground/40 border border-border/30 rounded px-1">PRO</span>
+                    )}
                   </span>
                 </div>
               ))}

@@ -7,6 +7,11 @@ import { Footer } from "@/components/footer"
 
 const iconMap = { Zap, Cpu, Radio }
 
+export const metadata = {
+  title: "Engineering Tracks",
+  description: "Explore the 3 electrical engineering specializations: Power Systems, Embedded Systems, and Communications Systems.",
+}
+
 export default function TracksPage() {
   return (
     <>
@@ -36,16 +41,18 @@ export default function TracksPage() {
               return (
                 <div
                   key={track.slug}
-                  className={`rounded-xl border ${track.borderColor} ${track.bgColor} p-8 flex flex-col gap-6 hover:border-opacity-60 transition-all`}
+                  className={`rounded-xl border ${track.borderColor} ${track.bgColor} p-8 flex flex-col gap-6`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-lg ${track.accentColor.replace("bg-", "bg-")}/10 border ${track.borderColor}`}>
+                    <div className={`p-2.5 rounded-lg bg-secondary border ${track.borderColor}`}>
                       <Icon className={`h-5 w-5 ${track.color}`} />
                     </div>
                     <h2 className={`font-mono font-bold text-xl ${track.color}`}>{track.name}</h2>
                   </div>
 
-                  <p className="text-sm text-muted-foreground leading-relaxed">{track.fullDescription.slice(0, 200)}...</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {track.shortDescription}
+                  </p>
 
                   <div>
                     <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-3">This fits you if</p>
