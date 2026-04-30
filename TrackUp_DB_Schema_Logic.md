@@ -1,10 +1,10 @@
-# TrackUp — DB Schema & Test Logic Reference
+# TrackUp — DB Schema & Assessment Logic Reference
 
 ## 1. Purpose
 
 This document defines the minimum database structure and assessment logic needed for TrackUp.
 
-TrackUp is a career guidance and validation platform for engineering students.  
+TrackUp is a career guidance and validation platform for electrical engineering students.  
 It is not a course platform.
 
 This document is intended to be used as:
@@ -17,157 +17,197 @@ This document is intended to be used as:
 ## 2. Product Scope Covered Here
 
 This document covers only:
-- user identity
-- assessment/test flow
+- user identity and roles
+- assessment and test flow
 - answer storage
-- scoring
+- scoring logic
 - track recommendation
-- recorded session access
-- live session booking
+- recorded session access (premium)
+- live session booking (paid)
 - validation test
-- roadmap display support
+- roadmap display (free preview + premium full)
 - follow-up tracking
 - partner referral tracking
 
 This document does not define:
 - course delivery
 - LMS functionality
-- community/chat system
+- community or chat system
 - full payment gateway logic
 - partner dashboard logic
 
 ---
 
-## 3. Core Entities
+## 3. Approved Tracks
 
-TrackUp should be built around these core entities:
+TrackUp supports exactly 3 tracks. No others should be added without a product decision:
 
-1. User
-2. Assessment
-3. Question
-4. QuestionOption
-5. Attempt
-6. Answer
-7. Track
-8. TrackScore
-9. Recommendation
-10. RecordedSession
-11. LiveSession
-12. Booking
-13. ValidationTest
-14. RoadmapItem
-15. FollowUp
-16. PartnerReferral
+1. Power Systems (slug: `power`)
+2. Embedded Systems (slug: `embedded`)
+3. Communications Systems (slug: `communications`)
 
 ---
 
-## 4. Recommended Database Model
+## 4. Core Entities
 
-The schema below is intentionally minimal and modular.
+TrackUp is built around these core entities:
 
-### 4.1 User
+1. User
+2. Mentor
+3. Assessment
+4. Question
+5. QuestionOption
+6. Attempt
+7. Answer
+8. Track
+9. TrackScore
+10. Recommendation
+11. RecordedSession
+12. LiveSession
+13. Booking
+14. ValidationTest
+15. RoadmapItem
+16. FollowUp
+17. PartnerReferral
 
-Represents a student using the platform.
+---
+
+## 5. Recommended Database Model
+
+### 5.1 User
+
+Represents anyone using the platform (student, mentor, or admin).
 
 Fields:
 - id
 - fullName
 - email
-- passwordHash or external auth id
+- passwordHash (or external auth id)
+- role: `student` | `mentor` | `admin`
 - universityName (optional)
 - facultyName (optional)
 - academicYear (optional)
-- preferredLanguage
+- preferredLanguage: `ar` | `en`
+- tier: `free` | `premium`
 - createdAt
 - updatedAt
 
 Notes:
-- A user may complete multiple assessment attempts.
-- A user may book multiple sessions.
-- A user may receive multiple recommendations over time.
+- Role determines access. Mentors are Users with role `mentor`.
+- A student may complete multiple assessment attempts.
+- A student may book multiple sessions.
+- Tier controls access to premium content.
 
 ---
 
-### 4.2 Assessment
+### 5.2 Mentor
 
-Represents a test definition.
+Represents a specialist who offers recorded and live sessions.
+
+Fields:
+- id
+- userId (foreign key → User with role `mentor`)
+- trackId (foreign key → Track)
+- bio
+- profileImageUrl (optional)
+- sessionRate (price per session)
+- yearsOfExperience
+- isActive
+- createdAt
+- updatedAt
+
+Notes:
+- A mentor is always linked to a User account.
+- A mentor specializes in one track only for MVP.
+- Admin controls mentor activation.
+
+---
+
+### 5.3 Assessment
+
+Represents a versioned test definition.
 
 Fields:
 - id
 - title
-- version
-- status (`draft`, `active`, `archived`)
+- version (integer, starts at 1)
+- status: `draft` | `active` | `archived`
 - description
 - createdAt
 - updatedAt
 
 Notes:
-- Versioning is important because questions and scoring may evolve.
-- The recommendation logic should always know which version produced a result.
+- Only one assessment can be `active` at a time.
+- Versioning is critical. The recommendation must always know which version produced it.
+- Archived assessments are kept for historical record.
 
 ---
 
-### 4.3 Question
+### 5.4 Question
 
-Represents a question inside an assessment.
+Represents one question inside an assessment.
 
 Fields:
 - id
 - assessmentId
 - orderIndex
 - text
-- questionType
+- questionType: `single_choice` | `scale` | `binary`
 - category
+- weight: `high` | `medium` | `low`
 - isActive
 - createdAt
 - updatedAt
 
-questionType examples:
-- `single_choice`
-- `multiple_choice`
-- `scale`
-- `binary`
-
-category examples:
+category values:
 - `hardware_preference`
-- `software_preference`
-- `logic_style`
+- `power_interest`
+- `embedded_interest`
+- `communications_interest`
 - `practical_style`
 - `theory_style`
+- `logic_strength`
+- `math_comfort`
 - `teamwork_style`
-- `problem_solving_style`
-- `interest_area`
+- `independent_work_style`
+
+Notes:
+- `weight` controls how strongly this question influences the final score.
+- Keep questions focused on the 3 approved tracks only.
 
 ---
 
-### 4.4 QuestionOption
+### 5.5 QuestionOption
 
-Represents one possible answer for a question.
+Represents one selectable answer for a question.
 
 Fields:
 - id
 - questionId
-- label
-- value
+- label (display text)
+- value (machine-readable key)
 - orderIndex
+- trackScores (JSON) — example: `{ "power": 2, "embedded": 1, "communications": 0 }`
 - createdAt
 - updatedAt
 
 Notes:
-- Options may contain score metadata in the admin layer or in a scoring table.
-- Keep option values stable and machine-readable.
+- `trackScores` is the scoring map. Every option must define a score contribution for all 3 tracks.
+- Scores are integers. Higher means stronger signal toward that track.
+- This field allows the scoring engine to remain stateless and data-driven.
 
 ---
 
-### 4.5 Attempt
+### 5.6 Attempt
 
-Represents one full user completion of an assessment.
+Represents one full user run of an assessment.
 
 Fields:
 - id
 - userId
 - assessmentId
-- status (`in_progress`, `completed`, `abandoned`)
+- assessmentVersion (mirrors Assessment.version at time of attempt)
+- status: `in_progress` | `completed` | `abandoned`
 - startedAt
 - completedAt
 - createdAt
@@ -175,11 +215,12 @@ Fields:
 
 Notes:
 - Every answer must belong to one attempt.
-- Recommendation results should be tied to a specific attempt.
+- Recommendation results must be tied to a specific attempt.
+- `assessmentVersion` preserves traceability even if the Assessment is updated later.
 
 ---
 
-### 4.6 Answer
+### 5.7 Answer
 
 Represents one answer selected by the user for one question.
 
@@ -187,88 +228,87 @@ Fields:
 - id
 - attemptId
 - questionId
-- optionId (nullable if free text exists later)
-- rawValue
+- optionId
+- rawValue (stores the selected value or scale number)
 - createdAt
 - updatedAt
 
 Notes:
-- rawValue can store the selected value, scale number, or text.
-- For MVP, keep answer types limited and structured.
+- For MVP, keep answer types limited to `single_choice` and `scale`.
+- `rawValue` is redundant storage for audit and debugging.
 
 ---
 
-### 4.7 Track
+### 5.8 Track
 
-Represents a career track or specialization.
+Represents one of the 3 approved career tracks.
 
 Fields:
 - id
-- slug
+- slug: `power` | `embedded` | `communications`
 - name
 - shortDescription
 - fullDescription
-- trackType
+- trackType: `hardware` | `mixed`
 - isActive
 - createdAt
 - updatedAt
 
-trackType examples:
-- `software`
-- `hardware`
-- `mixed`
-
 Notes:
-- Track is a broad category, not a course.
-- Example: Embedded Systems, Web Development, Power Engineering, Communications.
+- Track is a specialization direction, not a course.
+- There are exactly 3 tracks. Slug must be one of the 3 approved values.
 
 ---
 
-### 4.8 TrackScore
+### 5.9 TrackScore
 
-Represents how well a user attempt matches a track.
+Represents how well a user attempt matches each track.
 
 Fields:
 - id
 - attemptId
 - trackId
-- score
-- rank
-- reasonSummary
+- rawScore (sum of option trackScores)
+- normalizedScore (0–100)
+- rank (1, 2, or 3)
+- matchLevel: `high_match` | `medium_match` | `low_match`
+- reasonSummary (human-readable explanation)
 - createdAt
 - updatedAt
 
 Notes:
-- One attempt can have multiple track scores.
-- Exactly top 3 should be surfaced to the user.
-- Keep score explanation human-readable.
+- One attempt produces exactly 3 TrackScore rows (one per track).
+- Rank 1 = Best Match. All 3 ranks are always filled.
+- If scores are very close between rank 1 and rank 2, mark as `needs_validation`.
 
 ---
 
-### 4.9 Recommendation
+### 5.10 Recommendation
 
 Represents the final recommendation output shown to the user.
 
 Fields:
 - id
 - attemptId
+- assessmentVersion (mirrors the version used for this result)
 - primaryTrackId
 - secondaryTrackId
 - tertiaryTrackId
-- summary
-- decisionStatus (`recommended`, `needs_validation`, `confirmed`)
+- summary (short overall profile description)
+- decisionStatus: `recommended` | `needs_validation` | `confirmed`
 - createdAt
 - updatedAt
 
 Notes:
 - This is the user-facing recommendation snapshot.
-- It should not be recalculated silently without tracking version changes.
+- `assessmentVersion` ensures that if the test changes, old results are still traceable.
+- Do not recalculate silently. Any new calculation must create a new Recommendation row.
 
 ---
 
-### 4.10 RecordedSession
+### 5.11 RecordedSession
 
-Represents a recorded intro session for a track.
+Represents a short recorded preview session for a track.
 
 Fields:
 - id
@@ -277,141 +317,128 @@ Fields:
 - description
 - videoUrl
 - durationMinutes
+- isBeginnnerFriendly
+- isPremium (true = requires premium tier to watch)
 - isActive
 - createdAt
 - updatedAt
 
 Notes:
-- These are not full courses.
-- These sessions exist to help the student understand the track.
+- These are NOT full courses. Max 5 sessions per track for MVP.
+- Purpose: give the student a realistic feel for the field.
+- Free users see the card and title but cannot play the video.
 
 ---
 
-### 4.11 LiveSession
+### 5.12 LiveSession
 
-Represents a bookable live mentorship or clarification session.
+Represents a bookable live 1:1 mentorship session.
 
 Fields:
 - id
 - trackId
-- mentorId
+- mentorId (foreign key → Mentor)
 - title
 - description
+- sessionType: `introduction` | `decision_support` | `clarification` | `validation`
 - price
 - durationMinutes
-- capacity
+- capacity (1 for 1:1 sessions)
 - startAt
 - endAt
-- status
+- status: `available` | `booked_out` | `cancelled` | `completed`
 - createdAt
 - updatedAt
 
-status examples:
-- `available`
-- `booked_out`
-- `cancelled`
-- `completed`
-
 ---
 
-### 4.12 Booking
+### 5.13 Booking
 
-Represents a user's reservation for a live session.
+Represents a student's reservation for a live session.
 
 Fields:
 - id
 - userId
 - liveSessionId
-- paymentStatus
-- bookingStatus
-- joinedAt
+- paymentStatus: `pending` | `paid` | `failed` | `refunded`
+- bookingStatus: `reserved` | `confirmed` | `cancelled` | `completed`
+- joinedAt (nullable)
 - createdAt
 - updatedAt
 
-paymentStatus examples:
-- `pending`
-- `paid`
-- `failed`
-- `refunded`
-
-bookingStatus examples:
-- `reserved`
-- `confirmed`
-- `cancelled`
-- `completed`
-
 ---
 
-### 4.13 ValidationTest
+### 5.14 ValidationTest
 
-Represents the final confirmation test after exposure to sessions or explanations.
+Represents the confirmation test taken AFTER the student has explored a track.
 
 Fields:
 - id
 - userId
-- attemptId
-- trackId
-- status
+- attemptId (the original career assessment attempt)
+- trackId (the track being validated)
+- status: `in_progress` | `completed`
 - score
+- result: `confirmed_track` | `confirmed_subtrack` | `needs_more_exploration`
 - resultSummary
 - createdAt
 - updatedAt
 
 Notes:
-- This test should confirm understanding and direction.
-- It should not just repeat the original assessment.
+- This is NOT a repeat of the career assessment.
+- This test confirms understanding and interest stability AFTER exposure to the track.
+- It should reference the original attempt but not override it completely.
 
 ---
 
-### 4.14 RoadmapItem
+### 5.15 RoadmapItem
 
-Represents one learning step inside a track roadmap.
+Represents one step inside a track roadmap.
 
 Fields:
 - id
 - trackId
-- phase
+- phase: `first_30_days` | `first_90_days` | `foundation` | `practice` | `advanced`
 - title
 - description
 - orderIndex
-- resourceType
+- resourceType: `video` | `article` | `book` | `course` | `project`
 - resourceUrl
-- isPremium
+- isFree (true = visible to all users)
+- isPremium (true = requires premium to unlock)
 - createdAt
 - updatedAt
 
-phase examples:
-- `first_30_days`
-- `first_90_days`
-- `foundation`
-- `practice`
-- `advanced`
+Notes:
+- `first_30_days` items must always have `isFree: true`.
+- `first_90_days` and beyond require premium.
+- Gating rule: premium gate hides the content but shows the title.
 
 ---
 
-### 4.15 FollowUp
+### 5.16 FollowUp
 
-Represents periodic progress checking.
+Represents a periodic progress check-in.
 
 Fields:
 - id
 - userId
 - trackId
-- status
+- status: `on_track` | `falling_behind` | `just_starting`
 - checkInDate
-- notes
+- notes (optional)
 - createdAt
 - updatedAt
 
 Notes:
-- Optional for MVP.
-- Useful later for engagement and retention.
+- Optional for Phase 1 MVP.
+- Used later for engagement and retention.
 
 ---
 
-### 4.16 PartnerReferral
+### 5.17 PartnerReferral
 
-Represents tracking for external paid platforms or partner offers.
+Represents an affiliate or revenue-sharing tracking record.
 
 Fields:
 - id
@@ -419,43 +446,49 @@ Fields:
 - trackId
 - refCode
 - landingUrl
-- commissionType
+- commissionType: `flat` | `percentage`
 - commissionValue
 - isActive
 - createdAt
 - updatedAt
 
-Notes:
-- Used for affiliate or revenue-sharing tracking.
-- Should be simple and auditable.
-
 ---
 
-## 5. Recommended Relationship Map
+## 6. Relationship Map
 
 ### User
 - has many Attempts
 - has many Bookings
 - has many ValidationTests
 - has many FollowUps
+- may have one Mentor profile (if role = `mentor`)
+
+### Mentor
+- belongs to one User
+- belongs to one Track
+- has many LiveSessions
 
 ### Assessment
 - has many Questions
+- has many Attempts
 
 ### Question
+- belongs to one Assessment
 - has many QuestionOptions
 
 ### Attempt
 - belongs to one User
 - belongs to one Assessment
+- stores assessmentVersion at time of creation
 - has many Answers
+- has many TrackScores (exactly 3)
 - has one Recommendation
-- has one ValidationTest
+- may have one ValidationTest
 
 ### Track
 - has many TrackScores
 - has many RecordedSessions
-- has many LiveSessions
+- has many LiveSessions (through Mentors)
 - has many RoadmapItems
 - has many PartnerReferrals
 
@@ -466,136 +499,115 @@ Notes:
 
 ---
 
-## 6. Assessment Logic
+## 7. Assessment Scoring Logic
 
-The assessment logic should be deterministic, explainable, and versioned.
+The scoring must be deterministic, explainable, and versioned.
 
-### 6.1 Core Logic Goal
+### 7.1 Core Goal
 
-The test should estimate:
-- preference toward hardware or software
-- work style
-- thinking style
-- practical vs theoretical inclination
-- suitability for specific tracks
+Estimate the student's fit with each of the 3 tracks:
+- Power Systems
+- Embedded Systems
+- Communications Systems
 
-### 6.2 Output Rules
+### 7.2 How Scoring Works
 
-The logic must output:
-- top 3 tracks
-- score for each track
-- short reason for each track
-- optional confidence level
+1. For each answer, read `QuestionOption.trackScores`
+2. Multiply the score values by the question's `weight` factor:
+   - high = 3
+   - medium = 2
+   - low = 1
+3. Accumulate scores per track across all answers
+4. Normalize each track total to a 0–100 scale
+5. Rank tracks 1 to 3
+6. Assign `matchLevel` based on normalized score:
+   - 70–100 → `high_match`
+   - 40–69 → `medium_match`
+   - 0–39 → `low_match`
+7. If rank 1 and rank 2 normalized scores differ by less than 10 points → mark `decisionStatus: needs_validation`
 
-### 6.3 Scoring Categories
+### 7.3 Reason Generation
 
-Every question should map to one or more scoring categories.
+Reasons are derived from the strongest answer categories.
 
-Examples:
-- `hardware_preference`
-- `software_preference`
-- `embedded_interest`
-- `web_interest`
-- `power_interest`
-- `communications_interest`
-- `logic_strength`
-- `practical_strength`
-- `theory_strength`
-- `teamwork_strength`
-- `independent_work_strength`
+Example reason structures:
+- "You showed strong interest in physical systems and power electronics."
+- "Your answers suggest a preference for building and debugging embedded devices."
+- "You showed consistent interest in signal processing and wireless systems."
+- "Your scores were close — a validation session is recommended before committing."
 
-### 6.4 Scoring Approach
+### 7.4 Output Rules
 
-Each answer contributes points to one or more tracks.
-
-Example:
-- A question about liking physical devices may add points to `embedded` and `power`
-- A question about building interfaces may add points to `web`
-- A question about signal processing may add points to `communications`
-
-### 6.5 Weighting Rules
-
-Use weights to keep the test balanced:
-- high-impact questions: stronger weight
-- medium-impact questions: normal weight
-- low-impact questions: small weight
-
-Weights should be adjustable in admin/config, not hardcoded only in UI.
-
-### 6.6 Recommendation Thresholds
-
-Use thresholds to classify results:
-- `high_match`
-- `medium_match`
-- `low_match`
-
-Only the top 3 tracks should be shown.
-If scores are too close, the system should mark the result as:
-- `needs_validation`
-
-### 6.7 Reason Generation
-
-Reasons should be derived from:
-- strongest answer groups
-- strongest categories
-- contradictions between answers
-- explicit preferences
-
-Example reason structure:
-- "You showed strong interest in practical problem solving."
-- "Your answers suggest comfort with structured technical tasks."
-- "You prefer building and debugging more than theory-heavy analysis."
+Every completed attempt must produce:
+- 3 TrackScore rows (one per track, ranked 1–3)
+- 1 Recommendation row with top 3 tracks
+- A summary of the student's overall profile
+- A decisionStatus
 
 ---
 
-## 7. Validation Test Logic
+## 8. Validation Test Logic
 
-The validation test is a separate layer after the user has seen:
-- recorded sessions
-- mentor guidance
-- track previews
+The Validation Test runs AFTER the student has:
+- seen track details
+- optionally watched recorded sessions
+- optionally had a live session
 
-### 7.1 Goal
+### 8.1 Goal
 
-Confirm whether the user:
-- understands the chosen field
-- still feels aligned with it
-- can identify a sub-track
-- is ready to continue with external learning
+Confirm whether the student:
+- understands what the chosen track actually requires
+- still feels aligned with it after real exposure
+- can identify a sub-direction within the track
+- is ready to start the roadmap
 
-### 7.2 Validation Output
+### 8.2 Validation Output
 
-The validation test should return one of:
-- `confirmed_track`
-- `confirmed_subtrack`
-- `needs_more_exploration`
+The validation test returns one of:
+- `confirmed_track` → ready to follow the roadmap
+- `confirmed_subtrack` → confirmed but needs a more specific sub-direction
+- `needs_more_exploration` → should revisit another track or book a session
 
-### 7.3 Validation Question Types
+### 8.3 Validation Question Types
 
-Use questions that test:
-- clarity of understanding
-- interest stability
-- practical awareness
-- sub-track preference
-- confidence in decision
+- Clarity of understanding about the track
+- Interest stability after exposure
+- Awareness of real daily tasks
+- Comfort with the challenges mentioned
+- Sub-track preference (where applicable)
 
-### 7.4 Validation Decision Logic
+### 8.4 Decision Logic
 
-A final result should be based on:
-- validation score
-- mentor session notes
-- prior assessment score
-- user confidence
+The final validation result is based on:
+- Validation test score
+- Original assessment TrackScore for this track
+- Whether the student attended a live session
 
-The validation test should not override all previous information by itself.
+Do not override the original assessment result alone. The validation adds weight, not a full replacement.
 
 ---
 
-## 8. Minimal MVP Rules
+## 9. Premium vs Free Gating Rules
 
-For MVP, keep the system limited to:
+| Content | Free | Premium |
+|---|---|---|
+| Full career assessment | Yes | Yes |
+| Results summary (3 ranked tracks) | Yes | Yes |
+| Full recommendation reasoning | No | Yes |
+| Track overview page | Yes | Yes |
+| Roadmap: first 30 days | Yes | Yes |
+| Roadmap: full 90 days | No | Yes |
+| Recorded session cards (title) | Yes | Yes |
+| Recorded session playback | No | Yes |
+| Live session booking | Paid | Paid |
+| Validation test | Yes | Yes |
+| Dashboard progress | Yes | Yes |
 
-### Include
+---
+
+## 10. MVP Entity Priority
+
+### Phase 1 — Must Have
 - User
 - Assessment
 - Question
@@ -605,95 +617,103 @@ For MVP, keep the system limited to:
 - Track
 - TrackScore
 - Recommendation
-- RecordedSession
 - RoadmapItem
 
-### Optional for MVP
+### Phase 2 — Add Next
+- Mentor
+- RecordedSession
 - LiveSession
 - Booking
 - ValidationTest
+
+### Phase 3 — Optional
 - FollowUp
 - PartnerReferral
 
-### Exclude from MVP
-- community
-- messaging
-- advanced analytics
+### Never Add for MVP
+- Community
+- Messaging
+- Advanced analytics
 - AI chat advisor
-- course hosting
-- certificate system
+- Course hosting
+- Certificate system
 
 ---
 
-## 9. Data Integrity Rules
+## 11. Data Integrity Rules
 
-These rules must be respected:
-
-1. An Attempt must belong to exactly one user and one assessment.
-2. An Answer must belong to exactly one attempt and one question.
-3. TrackScore must always be tied to a single attempt.
-4. Recommendation must store the exact top 3 tracks used at that time.
-5. Session booking must reference an existing live session.
-6. Validation tests must reference a real attempt or chosen track.
-7. Roadmap items must belong to one track only.
+1. An Attempt must belong to exactly one User and one Assessment.
+2. An Attempt must store `assessmentVersion` at the time it is created.
+3. An Answer must belong to exactly one Attempt and one Question.
+4. TrackScore must always produce exactly 3 rows per Attempt (one per track).
+5. Recommendation must store the exact `assessmentVersion` used.
+6. A Booking must reference an existing LiveSession with status `available`.
+7. A ValidationTest must reference a valid Attempt and an approved Track slug.
+8. RoadmapItems with `isPremium: true` must never expose `resourceUrl` to free users.
+9. A Mentor must always be linked to a User with role `mentor`.
 
 ---
 
-## 10. API Behavior Reference
-
-A developer may implement these endpoints:
+## 12. API Behavior Reference
 
 ### Assessment
 - `GET /assessments/active`
 - `GET /assessments/:id/questions`
 
 ### Attempt
-- `POST /attempts`
-- `PATCH /attempts/:id`
-- `POST /attempts/:id/answers`
-- `POST /attempts/:id/complete`
+- `POST /attempts` — start a new attempt
+- `PATCH /attempts/:id` — update status
+- `POST /attempts/:id/answers` — save answers
+- `POST /attempts/:id/complete` — trigger scoring
 
 ### Recommendation
 - `GET /attempts/:id/recommendation`
 
 ### Tracks
-- `GET /tracks`
-- `GET /tracks/:slug`
-
-### Sessions
-- `GET /tracks/:id/recorded-sessions`
-- `GET /live-sessions`
-- `POST /bookings`
-
-### Validation
-- `POST /validation-tests`
-- `GET /validation-tests/:id`
+- `GET /tracks` — returns all 3 active tracks
+- `GET /tracks/:slug` — slug must be `power`, `embedded`, or `communications`
 
 ### Roadmap
-- `GET /tracks/:id/roadmap`
+- `GET /tracks/:slug/roadmap` — returns items based on user tier
+
+### Recorded Sessions
+- `GET /tracks/:slug/recorded-sessions` — returns cards; video URL gated by tier
+
+### Mentors
+- `GET /mentors` — list all active mentors
+- `GET /mentors?track=embedded` — filter by track
+
+### Live Sessions
+- `GET /live-sessions` — available sessions
+- `POST /bookings` — create a booking
+
+### Validation
+- `POST /validation-tests` — start validation
+- `GET /validation-tests/:id` — get result
 
 ---
 
-## 11. Product Rules for the AI / Developer
+## 13. Product Rules for the AI / Developer
 
-The implementation must follow these rules:
 - Do not transform TrackUp into a course platform
-- Do not hide the reasoning behind recommendations
-- Do not return only one track without explanation
-- Do not add unnecessary complexity early
-- Do not skip versioning for assessment and recommendation logic
-- Do not make the schema too generic
-- Keep every entity purpose-specific
+- Do not add a 4th track without an explicit product decision
+- Do not hide the reasoning behind recommendations from premium users
+- Do not return only one track recommendation without explanation
+- Do not skip versioning for assessment and recommendation
+- Keep every entity purpose-specific and named clearly
+- Always separate free content from premium content at the data level
+- Never expose premium `resourceUrl` to free users at the API level
 
 ---
 
-## 12. Final Reference Summary
+## 14. Final Reference Summary
 
-TrackUp should be built as:
-- a structured assessment engine
-- a track recommendation system
-- a track preview experience
-- a mentorship booking layer
-- a validation and follow-up layer
+TrackUp is built as:
+- a structured assessment engine → Test + Scoring + Recommendation
+- a track decision guide → Track details + Recorded sessions
+- a mentorship booking layer → Mentors + Live sessions + Bookings
+- a validation layer → Validation test + Confirmation
+- a learning path pointer → Roadmap (external resources only)
+- a progress tracker → Dashboard + FollowUp
 
-The database and logic must support these flows cleanly and without drift from the product vision.
+The database must support these flows cleanly and without drift from the product vision.

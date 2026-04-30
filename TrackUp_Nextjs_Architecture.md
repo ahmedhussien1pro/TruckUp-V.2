@@ -8,7 +8,7 @@ Build TrackUp as a **Next.js app** that is:
 - clear for any future developer
 - structured around the product flow, not around random UI pages
 
-TrackUp must stay a **career guidance product**, not a course platform.
+TrackUp must stay a **career decision-guidance product**, not a course platform.
 
 ---
 
@@ -21,11 +21,11 @@ TrackUp must stay a **career guidance product**, not a course platform.
 - shadcn/ui
 - React Server Components where possible
 - Server Actions or Route Handlers for write operations
-- Database layer for persistence
-- Auth layer only if needed for saving progress, bookings, and paid sessions
+- Database layer for persistence (Prisma recommended)
+- Auth layer for saving progress, bookings, and paid sessions
 
 ### Recommended Add-ons
-- Prisma or Drizzle for DB access
+- Prisma for DB access
 - Zod for validation
 - React Hook Form for interactive forms
 - Zustand or Context only if client state becomes complex
@@ -36,31 +36,32 @@ TrackUp must stay a **career guidance product**, not a course platform.
 
 ### Public Routes
 - `/` → Landing page
-- `/test` → Initial assessment
+- `/test` → Career assessment
+- `/test/[step]` → Single step inside the assessment
 - `/results` → Top 3 track results
-- `/tracks` → Track library
+- `/tracks` → Track overview (all 3 tracks)
 - `/tracks/[slug]` → Track details page
-- `/tracks/[slug]/preview` → Recorded session preview
-- `/roadmap/[slug]` → Roadmap page
+- `/tracks/[slug]/preview` → Recorded session preview (premium)
+- `/roadmap/[slug]` → Roadmap page (free: 30 days / premium: full)
+- `/mentors` → Mentor listing
 - `/book/[mentorId]` → Live session booking flow
 - `/pricing` → Monetization page
 - `/about` → Product explanation
 - `/faq` → Common questions
 
 ### Authenticated Routes
-- `/dashboard` → User overview
-- `/dashboard/progress` → Progress and history
+- `/dashboard` → User journey overview
+- `/dashboard/progress` → Progress and completed steps
 - `/dashboard/bookings` → Session bookings
-- `/dashboard/insights` → Premium explanations
+- `/dashboard/insights` → Premium reasoning and explanations
 - `/dashboard/settings` → Account settings
 
-### Admin / Internal Routes
+### Admin Routes (Phase 3 only — not MVP)
 - `/admin` → Admin overview
-- `/admin/tracks` → Track management
-- `/admin/questions` → Test question management
+- `/admin/tracks` → Track content management
+- `/admin/questions` → Assessment question management
 - `/admin/mentors` → Mentor management
 - `/admin/bookings` → Booking management
-- `/admin/partners` → Affiliate / partner tracking
 
 ---
 
@@ -71,6 +72,7 @@ app/
   layout.tsx
   page.tsx
   globals.css
+  middleware.ts              ← protects /dashboard and /admin routes
 
   (marketing)/
     about/page.tsx
@@ -79,7 +81,7 @@ app/
 
   test/
     page.tsx
-    questions/[step]/page.tsx
+    [step]/page.tsx
     result/page.tsx
 
   tracks/
@@ -89,6 +91,9 @@ app/
 
   roadmap/
     [slug]/page.tsx
+
+  mentors/
+    page.tsx
 
   book/
     [mentorId]/page.tsx
@@ -101,13 +106,12 @@ app/
     insights/page.tsx
     settings/page.tsx
 
-  admin/
+  admin/                     ← Phase 3 only
     page.tsx
     tracks/page.tsx
     questions/page.tsx
     mentors/page.tsx
     bookings/page.tsx
-    partners/page.tsx
 
 components/
   layout/
@@ -122,205 +126,246 @@ components/
   admin/
 
 lib/
-  db/
-  auth/
-  validation/
-  scoring/
-  recommendations/
-  tracks/
-  mentors/
-  bookings/
-  payments/
-  analytics/
+  db/              ← Prisma client
+  auth/            ← Auth helpers
+  validation/      ← Zod schemas
+  scoring/         ← Assessment scoring engine
+  recommendations/ ← Track recommendation logic
 
 types/
   track.ts
-  quiz.ts
+  assessment.ts
   mentor.ts
   booking.ts
   user.ts
+  recommendation.ts
 ```
 
 ---
 
-## 5. Page Responsibilities
+## 5. Middleware
 
-### 5.1 Landing Page
+Create `app/middleware.ts` to protect authenticated routes.
+
+```ts
+// app/middleware.ts
+export { default } from "next-auth/middleware"
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/admin/:path*"],
+}
+```
+
+This ensures `/dashboard` and `/admin` are only accessible to authenticated users.
+
+---
+
+## 6. Page Responsibilities
+
+### 6.1 Landing Page `/`
 Purpose:
 - explain TrackUp in one sentence
-- show the main value
+- show the main value for engineering students
 - push user to start the test
 
 Must contain:
-- hero section
+- hero section with one clear headline
 - short problem statement
-- how it works
-- trust / credibility section
+- how it works (4 steps)
+- track highlights (Power / Embedded / Communications)
+- pricing teaser (free test + premium unlock)
 - primary CTA: `Start Test`
 
 Must NOT contain:
 - heavy technical details
-- full track catalog upfront
+- full track catalog
 - long marketing copy
 
 ---
 
-### 5.2 Test Page
+### 6.2 Test Page `/test`
 Purpose:
-- collect user profile and preference data
+- collect user preferences and profile data
 
 Must contain:
-- progress indicator
-- one question per step or small grouped steps
-- clean navigation
-- save answer behavior
+- progress indicator (step X of Y)
+- one question per screen
+- multiple-choice only
+- save answer behavior per step
+- final submit action
 
 Must NOT contain:
 - unrelated content
-- long explanations on each question
-- too many choices per screen
+- long explanations per question
+- too many choices per screen (max 4)
 
 ---
 
-### 5.3 Results Page
+### 6.3 Results Page `/results`
 Purpose:
-- return exactly 3 recommended tracks
+- return exactly 3 ranked track recommendations
 
 Must contain:
-- ranked recommendations
-- reason for each recommendation
-- confidence level
-- next action CTA
+- ranked tracks with match score
+- short reason per track
+- free summary (always visible)
+- premium full reasoning (locked behind upgrade)
+- CTA to pricing page
+- CTA to explore top track
 
 Must NOT contain:
-- more than 3 main tracks in the primary view
-- generic “you may like this too” noise
+- more than 3 tracks
 - unclear ranking logic
+- generic motivational text
 
 ---
 
-### 5.4 Track Details Page
+### 6.4 Pricing Page `/pricing`
 Purpose:
-- explain one track clearly
+- show clearly what is free and what is paid
+- convert free users to premium
+- surface session booking as an additional paid layer
+
+Must contain:
+- Free tier contents
+- Premium tier contents with upgrade CTA
+- Paid session card with price and booking CTA
+
+Must NOT contain:
+- fake urgency or dark patterns
+- team or enterprise plans
+- irrelevant SaaS pricing patterns
+
+---
+
+### 6.5 Track Details Page `/tracks/[slug]`
+Purpose:
+- explain one specific track in depth
 
 Must contain:
 - what the track is
 - who it fits
 - what it is not
-- skills required
-- sample work
-- entry path
-- preview CTA
-- booking CTA
+- tools and skills required
+- recorded session preview CTA (premium)
+- booking CTA (paid)
 
 ---
 
-### 5.5 Recorded Preview Page
+### 6.6 Roadmap Page `/roadmap/[slug]`
 Purpose:
-- let the user “try the track” before committing
+- provide a clear learning path after track decision
 
 Must contain:
-- session title
-- session duration
-- speaker info
-- summary points
-- watch action
-
-Must NOT contain:
-- full course structure
-- full curriculum
-- unrelated clips
+- first 30 days (free)
+- first 90 days (premium gate)
+- core skills in order
+- external resources (free + paid)
+- upgrade CTA to unlock full roadmap
 
 ---
 
-### 5.6 Roadmap Page
+### 6.7 Mentors Page `/mentors`
 Purpose:
-- provide a clear learning path after decision
+- list available mentors by track
 
 Must contain:
-- first 30 days
-- first 90 days
-- core skills
-- tools
-- external resources
-- suggested order
-
-Must NOT contain:
-- too many resource links
-- random recommendations
-- hidden ambiguity about the path
+- mentor cards (name, track, short bio)
+- session type offered
+- booking CTA per mentor
 
 ---
 
-### 5.7 Booking Page
+### 6.8 Booking Page `/book/[mentorId]`
 Purpose:
-- allow booking a live session with a mentor
+- allow booking a live paid session with a mentor
 
 Must contain:
 - mentor details
+- session type selection
 - time slots
-- session purpose
-- price
+- price display
 - booking confirmation flow
 
 ---
 
-## 6. Component Architecture
+### 6.9 Dashboard `/dashboard`
+Purpose:
+- show the student exactly where they are in their journey
 
-### 6.1 Shared Layout Components
+Must contain:
+- journey progress bar (Test → Results → Track → Roadmap → Sessions)
+- current track (if decided)
+- next recommended action (one clear CTA)
+- upcoming bookings
+- tier status (Free / Premium)
+
+Must NOT contain:
+- course progress tracking
+- social feed
+- complex analytics
+
+---
+
+## 7. Component Architecture
+
+### 7.1 Shared Layout
 - `Navbar`
 - `Footer`
 - `PageHeader`
 - `SectionTitle`
 - `PrimaryCTA`
 - `SecondaryCTA`
-- `Breadcrumbs`
+- `PremiumGate` ← wraps any premium-locked content
+- `JourneyProgressBar` ← used in dashboard and navbar
 
-### 6.2 Landing Components
+### 7.2 Landing Components
 - `Hero`
 - `ProblemSection`
 - `HowItWorks`
 - `TrackHighlights`
-- `SocialProof`
+- `PricingTeaser`
 - `CTASection`
 
-### 6.3 Test Components
+### 7.3 Test Components
 - `QuestionCard`
 - `OptionList`
 - `ProgressBar`
 - `StepNavigator`
 - `TestSummary`
 
-### 6.4 Results Components
+### 7.4 Results Components
 - `RankedTrackCard`
-- `RecommendationReason`
+- `RecommendationReason` ← premium locked
 - `MatchScore`
 - `NextStepPanel`
+- `UpgradeCTA`
 
-### 6.5 Track Components
+### 7.5 Track Components
 - `TrackOverview`
 - `TrackFitBox`
 - `TrackNotFor`
 - `SkillList`
-- `PreviewSessionsList`
+- `PreviewSessionsList` ← premium locked
 - `RoadmapPreview`
 
-### 6.6 Booking Components
+### 7.6 Booking Components
 - `MentorCard`
 - `AvailableSlots`
 - `BookingForm`
 - `PaymentSummary`
 - `BookingSuccessPanel`
 
-### 6.7 Dashboard Components
-- `ProgressOverview`
-- `SavedTracks`
+### 7.7 Dashboard Components
+- `JourneyOverview`
+- `NextActionCard`
 - `UpcomingBookings`
-- `InsightCard`
+- `TierStatusBadge`
+- `InsightCard` ← premium locked
 
 ---
 
-## 7. Server vs Client Rules
+## 8. Server vs Client Rules
 
 ### Prefer Server Components for:
 - landing content
@@ -333,54 +378,41 @@ Must contain:
 ### Use Client Components for:
 - test interaction
 - booking forms
-- filters
-- dynamic slot selection
-- any live state or animations that need interactivity
+- slot selection
+- any live state or animations
+- progress bar updates
 
 ### Use Server Actions / Route Handlers for:
 - saving test answers
-- generating results
+- generating results and recommendation
 - booking a session
 - updating progress
-- subscribing to premium features
+- premium upgrade
 
 ---
 
-## 8. Data Flow
+## 9. Data Flow
 
 ### Test Flow
 1. User starts assessment
-2. Answers are stored step by step or at the end
-3. Scoring engine calculates track fit
-4. Results page displays top 3 tracks
-5. User can continue to track preview or roadmap
+2. Answers saved step by step
+3. Scoring engine calculates track fit per track
+4. Results page displays top 3 ranked tracks
+5. Free summary shown — full reasoning gated
+6. User continues to pricing or track details
+
+### Premium Unlock Flow
+1. User reaches results or roadmap
+2. Free preview is visible
+3. Premium content is locked with upgrade CTA
+4. User upgrades — content unlocks
 
 ### Booking Flow
-1. User chooses a mentor
-2. User selects a slot
-3. Payment or reservation is confirmed
+1. User browses mentors
+2. Selects session type and slot
+3. Payment is confirmed
 4. Booking is saved
-5. Confirmation is shown
-
-### Premium Insight Flow
-1. User reaches results
-2. Summary is visible for free
-3. Full explanation is gated
-4. User unlocks advanced reasoning
-
----
-
-## 9. Recommendation Logic Boundary
-
-The app must only:
-- recommend tracks based on stored answers
-- explain why a track was recommended
-- surface next steps
-
-The app must NOT:
-- pretend to teach the entire field
-- give misleading career guarantees
-- overload the user with unnecessary options
+5. Confirmation shown and saved to dashboard
 
 ---
 
@@ -389,9 +421,9 @@ The app must NOT:
 ### Global State
 Use sparingly for:
 - authenticated user
-- current test progress
-- booking status
+- current test step and answers
 - pricing tier
+- booking status
 
 ### Local State
 Use for:
@@ -399,25 +431,25 @@ Use for:
 - modal states
 - slot selection
 - tab switching
-- preview expansion
 
 ### Persistent State
 Store in DB:
-- answers
-- results
+- answers and attempts
+- recommendation results
 - saved tracks
 - bookings
-- premium unlocks
-- follow-up status
+- premium status
+- validation test results
+- follow-up check-ins
 
 ---
 
 ## 11. Validation Rules
 
 All forms and actions must use:
-- typed schemas
-- input validation
-- safe error handling
+- Zod typed schemas
+- input validation before any DB write
+- safe error handling with user-facing messages
 - clear loading states
 
 No silent failures.
@@ -426,66 +458,68 @@ No silent failures.
 
 ## 12. Naming Rules
 
-Use consistent names:
+Use consistent names everywhere:
 - `track`
 - `mentor`
 - `assessment`
+- `attempt`
 - `result`
+- `recommendation`
 - `roadmap`
 - `booking`
 - `insight`
+- `validation`
 
-Avoid vague labels such as:
-- `stuff`
-- `data`
-- `item`
-- `info`
+Avoid:
+- `stuff`, `data`, `item`, `info`, `thing`
 
 ---
 
 ## 13. MVP Build Order
 
-### Phase 1
+### Phase 1 — Core Decision Flow
 - Landing page
-- Assessment flow
-- Result page
-- Track details pages
-- Roadmap pages
+- Assessment flow (test + results)
+- Track details pages (Power / Embedded / Communications)
+- Roadmap pages (free preview)
+- Pricing page
 
-### Phase 2
+### Phase 2 — Engagement and Monetization
+- Premium gating (results reasoning + full roadmap)
 - Recorded preview sessions
-- Mentor booking
+- Mentor listing
+- Mentor booking (paid)
 - Authentication
-- Progress saving
+- Dashboard and progress tracking
 
-### Phase 3
-- Premium insights
+### Phase 3 — Operations and Growth
+- Validation test
 - Admin panel
-- Affiliate tracking
 - Follow-up system
+- Affiliate / partner tracking
 
 ---
 
 ## 14. Product Guardrails
 
 ### Keep
-- simple flow
-- one purpose per page
-- clear decision path
-- track-focused structure
+- simple flow from Landing to Decision
+- one clear purpose per page
+- free/premium split visible everywhere it matters
+- track-focused structure (Power, Embedded, Communications only)
 
 ### Avoid
 - turning TrackUp into a course website
-- adding too many navigation levels
-- mixing marketing and user flow badly
-- building everything before the core flow works
+- adding navigation levels that break the journey
+- mixing marketing copy and user flow
+- building admin or analytics before the core flow works
+- adding a 4th track without explicit product decision
 
 ---
 
 ## 15. Reference Principle
 
-Any developer or AI should follow this rule:
-
-> Build TrackUp around the decision journey first, then add monetization and support layers on top.
-
-That is the architecture rule for every future change.
+> Build TrackUp around the student's decision journey first.  
+> Add monetization and support layers on top of that foundation.  
+> Every page must answer one of these questions for the student:  
+> **Where am I? What did I complete? What should I do next?**
