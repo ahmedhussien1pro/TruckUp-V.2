@@ -4,69 +4,28 @@ import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import {
   ArrowRight,
-  GitBranch,
   CheckCircle2,
   Zap,
-  TrendingUp,
-  Users,
-  Eye,
-  Globe,
   Clock,
   Activity,
-  Database,
-  Cpu,
-  HardDrive,
+  Lock,
+  Target,
+  ChevronRight,
 } from "lucide-react"
 
 export function HeroSection() {
-  const [codeLineIndex, setCodeLineIndex] = useState(0)
   const [displayedText1, setDisplayedText1] = useState("")
   const [displayedText2, setDisplayedText2] = useState("")
   const [isTypingDone, setIsTypingDone] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const text1 = "Build faster."
-  const text2 = "Deploy smarter."
+  const text1 = "Find your track."
+  const text2 = "Own your future."
 
-  const codeLines = [
-    "import { createClient } from '@devflow/sdk'",
-    "import { cache } from 'react'",
-    "",
-    "const client = createClient({",
-    "  project: 'my-app',",
-    "  region: 'auto'",
-    "})",
-    "",
-    "export const getUser = cache(async (id) => {",
-    "  return client.users.get(id)",
-    "})",
-    "",
-    "export async function Dashboard() {",
-    "  const user = await getUser('1')",
-    "  const analytics = await client.analytics()",
-    "  return <DashboardView data={analytics} />",
-    "}",
-    "",
-    "// API Route Handler",
-    "export async function GET(request: Request) {",
-    "  const data = await client.query({",
-    "    metrics: ['pageviews', 'sessions'],",
-    "    period: '7d'",
-    "  })",
-    "  return Response.json(data)",
-    "}",
-    "",
-    "// Edge Middleware",
-    "export function middleware(req: Request) {",
-    "  const geo = req.headers.get('x-geo')",
-    "  return client.route(geo)",
-    "}",
-  ]
-
+  // Typing animation — unchanged logic
   useEffect(() => {
     let currentIndex = 0
-    const fullText = text1 + "|" + text2 // Use | as separator
-
+    const fullText = text1 + "|" + text2
     const typeInterval = setInterval(() => {
       if (currentIndex <= fullText.length) {
         const currentChar = fullText.substring(0, currentIndex)
@@ -79,21 +38,13 @@ export function HeroSection() {
         setIsTypingDone(true)
       }
     }, 80)
-
     return () => clearInterval(typeInterval)
   }, [])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCodeLineIndex((prev) => (prev + 1) % codeLines.length)
-    }, 800)
-    return () => clearInterval(interval)
-  }, [codeLines.length])
-
+  // Canvas grid-dot animation — unchanged logic
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
@@ -106,42 +57,31 @@ export function HeroSection() {
     window.addEventListener("resize", resizeCanvas)
 
     interface GridDot {
-      x: number
-      y: number
+      x: number; y: number
       direction: "horizontal" | "vertical"
-      speed: number
-      size: number
-      opacity: number
-      color: string
-      targetX: number
-      targetY: number
+      speed: number; size: number; opacity: number
+      color: string; targetX: number; targetY: number
       trail: { x: number; y: number }[]
     }
 
-    const colors = ["rgba(255, 255, 255, 0.5)"] // Changed colors array to white with 0.5 opacity
-    const gridSize = 64 // 4rem = 64px to match the grid background
-    const dotCount = 30 // Increased dot count from 12 to 30
-
+    const colors = ["rgba(255, 255, 255, 0.5)"]
+    const gridSize = 64
+    const dotCount = 30
     const snapToGrid = (value: number) => Math.round(value / gridSize) * gridSize
-
     const gridDots: GridDot[] = []
 
     for (let i = 0; i < dotCount; i++) {
       const isHorizontal = Math.random() > 0.5
       const x = snapToGrid(Math.random() * canvas.offsetWidth)
       const y = snapToGrid(Math.random() * canvas.offsetHeight)
-
       gridDots.push({
-        x,
-        y,
+        x, y,
         direction: isHorizontal ? "horizontal" : "vertical",
         speed: Math.random() * 9 + 7.5,
         size: Math.random() * 2 + 2,
         opacity: Math.random() * 0.5 + 0.3,
         color: colors[Math.floor(Math.random() * colors.length)],
-        targetX: x,
-        targetY: y,
-        trail: [],
+        targetX: x, targetY: y, trail: [],
       })
     }
 
@@ -151,11 +91,9 @@ export function HeroSection() {
 
     const animate = (currentTime: number) => {
       animationId = requestAnimationFrame(animate)
-
       const deltaTime = currentTime - lastTime
       if (deltaTime < frameInterval) return
       lastTime = currentTime - (deltaTime % frameInterval)
-
       ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight)
 
       gridDots.forEach((dot) => {
@@ -167,11 +105,9 @@ export function HeroSection() {
             dot.x = dot.targetX
             if (Math.random() > 0.7) {
               dot.direction = "vertical"
-              const steps = Math.floor(Math.random() * 5) + 1
-              dot.targetY = dot.y + (Math.random() > 0.5 ? 1 : -1) * steps * gridSize
+              dot.targetY = dot.y + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1) * gridSize
             } else {
-              const steps = Math.floor(Math.random() * 8) + 2
-              dot.targetX = dot.x + (Math.random() > 0.5 ? 1 : -1) * steps * gridSize
+              dot.targetX = dot.x + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 8) + 2) * gridSize
             }
           } else {
             dot.x += dot.x < dot.targetX ? dot.speed : -dot.speed
@@ -181,44 +117,24 @@ export function HeroSection() {
             dot.y = dot.targetY
             if (Math.random() > 0.7) {
               dot.direction = "horizontal"
-              const steps = Math.floor(Math.random() * 8) + 2
-              dot.targetX = dot.x + (Math.random() > 0.5 ? 1 : -1) * steps * gridSize
+              dot.targetX = dot.x + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 8) + 2) * gridSize
             } else {
-              const steps = Math.floor(Math.random() * 5) + 1
-              dot.targetY = dot.y + (Math.random() > 0.5 ? 1 : -1) * steps * gridSize
+              dot.targetY = dot.y + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1) * gridSize
             }
           } else {
             dot.y += dot.y < dot.targetY ? dot.speed : -dot.speed
           }
         }
 
-        if (dot.x < -gridSize) {
-          dot.x = canvas.offsetWidth + gridSize
-          dot.targetX = dot.x
-          dot.trail = []
-        }
-        if (dot.x > canvas.offsetWidth + gridSize) {
-          dot.x = -gridSize
-          dot.targetX = dot.x
-          dot.trail = []
-        }
-        if (dot.y < -gridSize) {
-          dot.y = canvas.offsetHeight + gridSize
-          dot.targetY = dot.y
-          dot.trail = []
-        }
-        if (dot.y > canvas.offsetHeight + gridSize) {
-          dot.y = -gridSize
-          dot.targetY = dot.y
-          dot.trail = []
-        }
+        if (dot.x < -gridSize) { dot.x = canvas.offsetWidth + gridSize; dot.targetX = dot.x; dot.trail = [] }
+        if (dot.x > canvas.offsetWidth + gridSize) { dot.x = -gridSize; dot.targetX = dot.x; dot.trail = [] }
+        if (dot.y < -gridSize) { dot.y = canvas.offsetHeight + gridSize; dot.targetY = dot.y; dot.trail = [] }
+        if (dot.y > canvas.offsetHeight + gridSize) { dot.y = -gridSize; dot.targetY = dot.y; dot.trail = [] }
 
         if (dot.trail.length > 1) {
           ctx.beginPath()
           ctx.moveTo(dot.x, dot.y)
-          for (let i = 0; i < dot.trail.length; i++) {
-            ctx.lineTo(dot.trail[i].x, dot.trail[i].y)
-          }
+          for (let i = 0; i < dot.trail.length; i++) ctx.lineTo(dot.trail[i].x, dot.trail[i].y)
           ctx.strokeStyle = dot.color
           ctx.globalAlpha = dot.opacity * 0.4
           ctx.lineWidth = dot.size
@@ -238,53 +154,72 @@ export function HeroSection() {
         ctx.globalAlpha = dot.opacity
         ctx.fill()
       })
-
       ctx.globalAlpha = 1
     }
 
     animationId = requestAnimationFrame(animate)
-
     return () => {
       window.removeEventListener("resize", resizeCanvas)
       cancelAnimationFrame(animationId)
     }
   }, [])
 
-  const chartData = [
-    { label: "API Routes", value: 45, color: "#10b981" },
-    { label: "Static", value: 30, color: "#3b82f6" },
-    { label: "SSR", value: 25, color: "#a855f7" },
+  // TrackUp data
+  const trackData = [
+    { label: "Power", value: 45, color: "#f97316" },
+    { label: "Embedded", value: 32, color: "#3b82f6" },
+    { label: "Communications", value: 23, color: "#a855f7" },
+  ]
+  const total = trackData.reduce((sum, item) => sum + item.value, 0)
+  let cumulativePercent = 0
+
+  const journeySteps = [
+    { label: "Career Assessment", status: "done" },
+    { label: "View Results", status: "done" },
+    { label: "Explore Track", status: "active" },
+    { label: "Full Roadmap", status: "locked" },
+    { label: "Recorded Sessions", status: "locked" },
+    { label: "Book a Session", status: "locked" },
   ]
 
-  const total = chartData.reduce((sum, item) => sum + item.value, 0)
-  let cumulativePercent = 0
+  const roadmapItems = [
+    { day: "Day 1–7", title: "Understand the field", free: true },
+    { day: "Day 8–14", title: "Core concepts overview", free: true },
+    { day: "Day 15–21", title: "Starter tools & setup", free: true },
+    { day: "Day 22–30", title: "First practical task", free: true },
+    { day: "Day 31–45", title: "Deep dive: fundamentals", free: false },
+    { day: "Day 46–60", title: "Project: circuit basics", free: false },
+    { day: "Day 61–90", title: "Advanced applications", free: false },
+  ]
 
   return (
     <section className="relative overflow-hidden pt-20 pb-10 sm:pt-28 sm:pb-16 lg:pt-36">
+      {/* Grid background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
 
+      {/* Canvas animation */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none [mask-image:radial-gradient(ellipse_80%_60%_at_50%_20%,#000_40%,transparent_100%)]"
       />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Hero text */}
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/60 bg-secondary/50 px-4 py-1.5 text-sm text-muted-foreground">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
-            Now in public beta
+            Free career assessment — no account needed
           </div>
 
           <h1 className="font-mono text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl relative">
             <span className="invisible" aria-hidden="true">
-              <span className="text-balance">Build faster.</span>
+              <span className="text-balance">Find your track.</span>
               <br />
-              <span className="text-balance">Deploy smarter.</span>
+              <span className="text-balance">Own your future.</span>
             </span>
-
             <span className="absolute inset-0 flex flex-col items-center">
               <span className="text-balance bg-gradient-to-r from-[#FFEFBA] to-[#FFFFFF] bg-clip-text text-transparent">
                 {displayedText1}
@@ -295,37 +230,37 @@ export function HeroSection() {
               <span className="text-balance bg-gradient-to-r from-[#E44D26] to-[#F16529] bg-clip-text text-transparent">
                 {displayedText2}
                 {displayedText2 !== "" && (
-                  <span
-                    className={`inline-block w-[3px] h-[0.9em] bg-accent ml-1 ${
-                      isTypingDone ? "animate-blink" : "animate-pulse"
-                    }`}
-                  />
+                  <span className={`inline-block w-[3px] h-[0.9em] bg-accent ml-1 ${isTypingDone ? "animate-blink" : "animate-pulse"}`} />
                 )}
               </span>
             </span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl lg:text-2xl">
-            A powerful developer experience engineered for speed, reliability, and scalability. Build with React,
-            Next.js, and modern cloud technologies.
+            A structured assessment for electrical engineering students. Take a 15-minute test, get ranked results, and follow a clear roadmap to your specialization.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" className="w-full sm:w-auto">
-              Get started
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button size="lg" className="w-full sm:w-auto" asChild>
+              <a href="/test">
+                Start Free Test
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
             </Button>
-            <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent">
-              View documentation
+            <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
+              <a href="/tracks">Explore Tracks</a>
             </Button>
           </div>
         </div>
 
+        {/* Dashboard mock */}
         <div className="mt-20 relative">
           <div className="absolute -inset-4 bg-gradient-to-r from-accent/20 via-accent/10 to-accent/20 blur-3xl opacity-50" />
 
           <div className="relative overflow-x-auto pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
             <div className="relative rounded-xl border border-border/60 bg-[#141414] backdrop-blur-sm overflow-hidden shadow-2xl min-w-[900px] lg:min-w-0">
+
+              {/* Window chrome */}
               <div className="flex items-center justify-between border-b border-border/60 px-4 py-3 bg-[#1a1a1a]">
                 <div className="flex items-center gap-3">
                   <div className="flex gap-1.5">
@@ -333,126 +268,91 @@ export function HeroSection() {
                     <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
                     <div className="h-3 w-3 rounded-full bg-green-500/80" />
                   </div>
-                  <span className="text-xs text-muted-foreground font-mono">devflow dashboard</span>
+                  <span className="text-xs text-muted-foreground font-mono">trackup — your results</span>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Globe className="h-3 w-3" />
-                    <span>us-east-1</span>
+                    <Target className="h-3 w-3" />
+                    <span>Power Systems</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
-                    <span>99.99% uptime</span>
+                    <span>14 min test</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                    <span className="text-xs text-accent">Live</span>
+                    <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-xs text-green-400">87% match</span>
                   </div>
                 </div>
               </div>
 
+              {/* Metric cards */}
               <div className="grid grid-cols-4 gap-4 p-4 border-b border-border/60 bg-[#181818]">
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <Activity className="h-4 w-4 text-green-400" />
+                {[
+                  { icon: Activity, iconColor: "text-orange-400", bg: "bg-orange-500/10", value: "87%", label: "Top Match" },
+                  { icon: Clock, iconColor: "text-blue-400", bg: "bg-blue-500/10", value: "14m", label: "Test Duration" },
+                  { icon: CheckCircle2, iconColor: "text-green-400", bg: "bg-green-500/10", value: "3", label: "Tracks Ranked" },
+                  { icon: Zap, iconColor: "text-accent", bg: "bg-accent/10", value: "Free", label: "No signup" },
+                ].map((card, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
+                    <div className={`p-2 rounded-lg ${card.bg}`}>
+                      <card.icon className={`h-4 w-4 ${card.iconColor}`} />
+                    </div>
+                    <div>
+                      <span className="text-lg font-mono font-bold">{card.value}</span>
+                      <p className="text-[10px] text-muted-foreground">{card.label}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-lg font-mono font-bold">99.9%</span>
-                    <p className="text-[10px] text-muted-foreground">Availability</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
-                    <Cpu className="h-4 w-4 text-blue-400" />
-                  </div>
-                  <div>
-                    <span className="text-lg font-mono font-bold">24ms</span>
-                    <p className="text-[10px] text-muted-foreground">Avg Latency</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                  <div className="p-2 rounded-lg bg-purple-500/10">
-                    <Database className="h-4 w-4 text-purple-400" />
-                  </div>
-                  <div>
-                    <span className="text-lg font-mono font-bold">2.4TB</span>
-                    <p className="text-[10px] text-muted-foreground">Data Transfer</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                  <div className="p-2 rounded-lg bg-accent/10">
-                    <HardDrive className="h-4 w-4 text-accent" />
-                  </div>
-                  <div>
-                    <span className="text-lg font-mono font-bold">847</span>
-                    <p className="text-[10px] text-muted-foreground">Edge Nodes</p>
-                  </div>
-                </div>
+                ))}
               </div>
 
+              {/* 4-column content */}
               <div className="grid grid-cols-4 divide-x divide-border/60 min-h-[420px]">
+
+                {/* Col 1: Track Rankings */}
                 <div className="p-5">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Recent Deployments</h3>
-                  <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Track Rankings</h3>
+                  <div className="space-y-3">
                     {[
-                      { branch: "main", status: "success", time: "2m ago", env: "Production", hash: "a3f8c21" },
-                      { branch: "feature/auth", status: "success", time: "15m ago", env: "Preview", hash: "b7d2e09" },
-                      {
-                        branch: "fix/api-routes",
-                        status: "building",
-                        time: "Just now",
-                        env: "Preview",
-                        hash: "c9a1f34",
-                      },
-                      {
-                        branch: "feature/dashboard",
-                        status: "success",
-                        time: "1h ago",
-                        env: "Preview",
-                        hash: "d4e6b78",
-                      },
-                      { branch: "hotfix/cache", status: "success", time: "2h ago", env: "Production", hash: "e2c9d56" },
-                      {
-                        branch: "feature/analytics",
-                        status: "success",
-                        time: "3h ago",
-                        env: "Preview",
-                        hash: "f1a8c23",
-                      },
-                    ].map((deploy, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between p-2.5 rounded-lg bg-[#1c1c1c] border border-border/40"
-                      >
-                        <div className="flex items-center gap-2">
-                          {deploy.status === "success" ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                          ) : (
-                            <div className="h-3.5 w-3.5 rounded-full border-2 border-accent border-t-transparent animate-spin" />
-                          )}
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <GitBranch className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs font-mono">{deploy.branch}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-muted-foreground">{deploy.env}</span>
-                              <span className="text-[10px] text-muted-foreground/60 font-mono">{deploy.hash}</span>
-                            </div>
+                      { name: "Power Systems", score: 87, rank: 1, color: "bg-orange-500" },
+                      { name: "Embedded Systems", score: 72, rank: 2, color: "bg-blue-500" },
+                      { name: "Communications", score: 61, rank: 3, color: "bg-purple-500" },
+                    ].map((track) => (
+                      <div key={track.rank} className="p-2.5 rounded-lg bg-[#1c1c1c] border border-border/40">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {track.rank === 1 && (
+                              <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded-full font-mono">
+                                BEST MATCH
+                              </span>
+                            )}
+                            <span className="text-xs font-mono">{track.name}</span>
                           </div>
+                          <span className="text-xs font-mono font-bold">{track.score}%</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground">{deploy.time}</span>
+                        <div className="h-1.5 bg-[#141414] rounded-full overflow-hidden">
+                          <div
+                            className={`h-full ${track.color} rounded-full transition-all duration-1000`}
+                            style={{ width: `${track.score}%` }}
+                          />
+                        </div>
                       </div>
                     ))}
+                    <div className="mt-2 p-2.5 rounded-lg bg-accent/5 border border-accent/20">
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Strong interest in physical systems, energy, and practical problem-solving.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
+                {/* Col 2: Match Distribution */}
                 <div className="p-5">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Route Distribution</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Match Distribution</h3>
                   <div className="flex flex-col items-center">
                     <div className="relative w-36 h-36">
                       <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                        {chartData.map((item, index) => {
+                        {trackData.map((item, index) => {
                           const percent = (item.value / total) * 100
                           const dashArray = `${percent * 2.51327} ${251.327 - percent * 2.51327}`
                           const dashOffset = -cumulativePercent * 2.51327
@@ -460,9 +360,7 @@ export function HeroSection() {
                           return (
                             <circle
                               key={index}
-                              cx="50"
-                              cy="50"
-                              r="40"
+                              cx="50" cy="50" r="40"
                               fill="none"
                               stroke={item.color}
                               strokeWidth="12"
@@ -474,26 +372,26 @@ export function HeroSection() {
                         })}
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-2xl font-mono font-bold">156</span>
-                        <span className="text-[10px] text-muted-foreground">routes</span>
+                        <span className="text-2xl font-mono font-bold">3</span>
+                        <span className="text-[10px] text-muted-foreground">tracks</span>
                       </div>
                     </div>
                     <div className="mt-4 flex flex-wrap justify-center gap-3">
-                      {chartData.map((item, index) => (
+                      {trackData.map((item, index) => (
                         <div key={index} className="flex items-center gap-1.5">
                           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
                           <span className="text-[10px] text-muted-foreground">{item.label}</span>
-                          <span className="text-[10px] font-mono text-foreground">{item.value}%</span>
+                          <span className="text-[10px] font-mono">{item.value}%</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   <div className="mt-6 space-y-3">
-                    <h4 className="text-xs font-medium text-muted-foreground">Bandwidth Usage</h4>
+                    <h4 className="text-xs font-medium text-muted-foreground">Profile Strengths</h4>
                     {[
-                      { label: "Images", value: 45, color: "bg-blue-500" },
-                      { label: "Scripts", value: 30, color: "bg-accent" },
-                      { label: "API", value: 25, color: "bg-purple-500" },
+                      { label: "Practical Thinking", value: 82, color: "bg-orange-500" },
+                      { label: "Hardware Interest", value: 75, color: "bg-blue-500" },
+                      { label: "Math Comfort", value: 68, color: "bg-purple-500" },
                     ].map((item, i) => (
                       <div key={i} className="space-y-1">
                         <div className="flex justify-between text-[10px]">
@@ -501,111 +399,86 @@ export function HeroSection() {
                           <span className="font-mono">{item.value}%</span>
                         </div>
                         <div className="h-1.5 bg-[#1c1c1c] rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${item.color} rounded-full transition-all duration-1000`}
-                            style={{ width: `${item.value}%` }}
-                          />
+                          <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.value}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
+                {/* Col 3: Journey Progress */}
                 <div className="p-5">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Live Analytics</h3>
-                  <div className="space-y-3">
-                    <div className="p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                      <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Your Journey</h3>
+                  <div className="space-y-2">
+                    {journeySteps.map((step, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-center justify-between p-2.5 rounded-lg border ${
+                          step.status === "done"
+                            ? "bg-green-500/5 border-green-500/20"
+                            : step.status === "active"
+                            ? "bg-accent/10 border-accent/30"
+                            : "bg-[#1c1c1c] border-border/40"
+                        }`}
+                      >
                         <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-blue-400" />
-                          <span className="text-xs text-muted-foreground">Active Users</span>
+                          {step.status === "done" ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                          ) : step.status === "active" ? (
+                            <div className="h-3.5 w-3.5 rounded-full border-2 border-accent border-t-transparent animate-spin" />
+                          ) : (
+                            <Lock className="h-3.5 w-3.5 text-muted-foreground/40" />
+                          )}
+                          <span className={`text-xs font-mono ${step.status === "locked" ? "text-muted-foreground/40" : ""}`}>
+                            {step.label}
+                          </span>
                         </div>
-                        <span className="text-xs text-green-400 flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          +12%
-                        </span>
+                        {step.status === "locked" && (
+                          <span className="text-[9px] text-muted-foreground/40 border border-border/30 rounded px-1">PRO</span>
+                        )}
+                        {step.status === "active" && (
+                          <ChevronRight className="h-3 w-3 text-accent" />
+                        )}
                       </div>
-                      <span className="text-xl font-mono font-bold">2,847</span>
+                    ))}
+                  </div>
+                  <div className="mt-4 p-2.5 rounded-lg bg-[#1c1c1c] border border-border/40">
+                    <div className="flex justify-between text-[10px] mb-1.5">
+                      <span className="text-muted-foreground">Journey Progress</span>
+                      <span className="font-mono">2 / 6</span>
                     </div>
-                    <div className="p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Eye className="h-4 w-4 text-purple-400" />
-                          <span className="text-xs text-muted-foreground">Page Views</span>
-                        </div>
-                        <span className="text-xs text-green-400 flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          +8%
-                        </span>
-                      </div>
-                      <span className="text-xl font-mono font-bold">48.2K</span>
-                    </div>
-                    <div className="p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Zap className="h-4 w-4 text-accent" />
-                          <span className="text-xs text-muted-foreground">Requests/min</span>
-                        </div>
-                        <span className="text-xs text-green-400 flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          +5%
-                        </span>
-                      </div>
-                      <span className="text-xl font-mono font-bold">1,204</span>
-                    </div>
-                    <div className="p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-cyan-400" />
-                          <span className="text-xs text-muted-foreground">Edge Regions</span>
-                        </div>
-                      </div>
-                      <span className="text-xl font-mono font-bold">42</span>
-                    </div>
-                    <div className="p-3 rounded-lg bg-[#1c1c1c] border border-border/40">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Database className="h-4 w-4 text-orange-400" />
-                          <span className="text-xs text-muted-foreground">Cache Hit Rate</span>
-                        </div>
-                      </div>
-                      <span className="text-xl font-mono font-bold">94.7%</span>
+                    <div className="h-1.5 bg-[#141414] rounded-full overflow-hidden">
+                      <div className="h-full bg-accent rounded-full" style={{ width: "33%" }} />
                     </div>
                   </div>
                 </div>
 
+                {/* Col 4: Roadmap Preview */}
                 <div className="p-5">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Source Code</h3>
-                  <div className="rounded-lg bg-[#0d0d0d] border border-border/40 p-3 font-mono text-[11px] h-[340px] overflow-hidden">
-                    <div
-                      className="transition-transform duration-300 ease-out"
-                      style={{ transform: `translateY(-${codeLineIndex * 22}px)` }}
-                    >
-                      {[...codeLines, ...codeLines].map((line, i) => (
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4">Roadmap Preview</h3>
+                  <div className="rounded-lg bg-[#0d0d0d] border border-border/40 p-3 h-[340px] overflow-hidden">
+                    <div className="space-y-1.5">
+                      {roadmapItems.map((item, i) => (
                         <div
                           key={i}
-                          className={`h-[22px] leading-[22px] ${
-                            line.startsWith("import")
-                              ? "text-purple-400"
-                              : line.startsWith("export")
-                                ? "text-blue-400"
-                                : line.startsWith("const")
-                                  ? "text-accent"
-                                  : line.includes("return")
-                                    ? "text-pink-400"
-                                    : line.includes("await")
-                                      ? "text-yellow-400"
-                                      : line.startsWith("//")
-                                        ? "text-muted-foreground/60 italic"
-                                        : "text-muted-foreground"
-                          }`}
+                          className={`flex items-start gap-2 p-1.5 rounded ${!item.free ? "opacity-40" : ""}`}
                         >
-                          {line || " "}
+                          <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${item.free ? "bg-accent" : "bg-muted-foreground/30"}`} />
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-[10px] font-mono ${item.free ? "text-accent" : "text-muted-foreground/40"}`}>
+                              {item.day}
+                            </p>
+                            <p className={`text-[11px] truncate ${item.free ? "text-foreground" : "text-muted-foreground/30"}`}>
+                              {item.free ? item.title : "— Premium content —"}
+                            </p>
+                          </div>
+                          {!item.free && <Lock className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 mt-0.5" />}
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
