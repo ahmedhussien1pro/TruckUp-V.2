@@ -1,0 +1,15 @@
+{
+  "pageTitle": "Your Profile",
+  "editProfile": "Edit Profile",
+  "yourTrack": "Your Track",
+  "noTrack": "No track assigned yet",
+  "takeTest": "Take the test to find your track",
+  "progress": "Progress",
+  "assessmentResult": "Assessment Result",
+  "memberSince": "Member since {{date}}",
+  "accountType": "Account Type",
+  "upgradePrompt": "Upgrade to Premium for the full roadmap and session access",
+  "sessions": "My Sessions",
+  "noSessions": "No sessions booked yet",
+  "bookFirst": "Book your first session"
+}

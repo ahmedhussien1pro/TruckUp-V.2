@@ -1,0 +1,20 @@
+{
+  "free": "مجاني — لا تحتاج حسابًا",
+  "title": "تقييم المسار المهني",
+  "subtitleTemplate": "{{count}} سؤالاً لتحديد تخصصك الهندسي. يستغرق حوالي 15 دقيقة.",
+  "duration": "~١٥ دقيقة",
+  "durationSub": "بالسرعة التي تناسبك",
+  "questionsLabel": "{{count}} سؤالاً",
+  "questionsSub": "اختيار من متعدد فقط",
+  "private": "خاص",
+  "privateSub": "محفوظ محليًا على جهازك",
+  "startBtn": "ابدأ التقييم",
+  "privacyNote": "إجاباتك محفوظة محليًا على جهازك فقط.",
+  "questionOf": "سؤال {{current}} من {{total}}",
+  "back": "رجوع",
+  "next": "السؤال التالي",
+  "seeResults": "شاهد نتائجي",
+  "answered": "{{current}} من {{total}} تم الإجابة",
+  "unansweredWarning": "يرجى الإجابة على جميع الأسئلة قبل المتابعة.",
+  "progressLabel": "التقدم"
+}

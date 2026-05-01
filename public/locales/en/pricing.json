@@ -1,0 +1,48 @@
+{
+  "title": "Simple, honest pricing",
+  "subtitle": "Start for free. Upgrade when you are ready to go deeper. No subscriptions, no tricks.",
+  "oneTime": "one-time",
+  "forever": "forever",
+  "perSession": "per session",
+  "mostPopular": "Most Popular",
+  "faqTitle": "Frequently asked questions",
+  "free": {
+    "name": "Free",
+    "price": "0",
+    "desc": "Start your journey with the core assessment",
+    "features": [
+      "Full 15-question assessment",
+      "Ranked results for all 3 tracks",
+      "Top track recommendation",
+      "Basic track overview"
+    ],
+    "cta": "Start Free Test"
+  },
+  "premium": {
+    "name": "Premium",
+    "price": "49",
+    "currency": "EGP",
+    "desc": "Everything you need to start building",
+    "features": [
+      "Everything in Free",
+      "Full reasoning for all 3 tracks",
+      "Complete 90-day roadmap",
+      "Progress tracking",
+      "Priority support"
+    ],
+    "cta": "Upgrade to Premium"
+  },
+  "session": {
+    "name": "1:1 Session",
+    "price": "99",
+    "currency": "EGP",
+    "desc": "Live guidance from a working engineer",
+    "features": [
+      "45-minute live session",
+      "Track validation & deep dive",
+      "Personalized roadmap review",
+      "Recording included"
+    ],
+    "cta": "Book a Session"
+  }
+}

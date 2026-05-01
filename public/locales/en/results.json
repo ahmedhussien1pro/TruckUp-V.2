@@ -1,0 +1,20 @@
+{
+  "complete": "Assessment Complete",
+  "title": "Your Results",
+  "bestMatch": "BEST MATCH",
+  "retake": "Retake assessment",
+  "unlockTitle": "Unlock the full picture",
+  "unlockDesc": "Premium gives you full reasoning for all 3 tracks, a complete 90-day roadmap, and access to recorded preview sessions.",
+  "upgradePremium": "Upgrade to Premium",
+  "closedReason": "Full reasoning unlocked with Premium",
+  "noData": "No assessment data found",
+  "noDataDesc": "You need to complete the assessment before viewing results.",
+  "startAssessment": "Start Assessment",
+  "validationWarning": "Scores are close — a validation session is recommended",
+  "exploreTrack": "Explore this track",
+  "viewRoadmap": "View roadmap",
+  "rank": "Rank #{{position}}",
+  "matchScore": "{{score}}% match",
+  "yourTopTrack": "Your Top Track",
+  "allTracks": "All Track Results"
+}

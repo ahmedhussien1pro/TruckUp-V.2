@@ -1,0 +1,20 @@
+{
+  "free": "Free — No account needed",
+  "title": "Career Assessment",
+  "subtitleTemplate": "{{count}} questions to identify your top engineering track. Takes about 15 minutes.",
+  "duration": "~15 minutes",
+  "durationSub": "at your own pace",
+  "questionsLabel": "{{count}} questions",
+  "questionsSub": "multiple choice only",
+  "private": "Private",
+  "privateSub": "stored locally on your device",
+  "startBtn": "Start Assessment",
+  "privacyNote": "Your answers are saved locally on your device only.",
+  "questionOf": "Question {{current}} of {{total}}",
+  "back": "Back",
+  "next": "Next Question",
+  "seeResults": "See My Results",
+  "answered": "{{current}} of {{total}} answered",
+  "unansweredWarning": "Please answer all questions before proceeding.",
+  "progressLabel": "Progress"
+}

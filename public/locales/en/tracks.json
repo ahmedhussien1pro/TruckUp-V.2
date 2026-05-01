@@ -1,0 +1,29 @@
+{
+  "pageTitle": "Engineering Tracks",
+  "pageSubtitle": "Three specializations. One clear path. Find yours.",
+  "power": {
+    "name": "Power",
+    "tagline": "The backbone of energy infrastructure",
+    "description": "Design, analyze, and manage electrical power systems — from generation to distribution. High demand across utilities, construction, and renewable energy sectors.",
+    "roles": ["Power Systems Engineer", "Electrical Design Engineer", "Protection Engineer", "Energy Auditor"],
+    "skills": ["Power Systems Analysis", "AutoCAD Electrical", "ETAP", "Protection & Control", "Renewable Energy"]
+  },
+  "embedded": {
+    "name": "Embedded",
+    "tagline": "Where hardware meets software",
+    "description": "Build the intelligent systems inside every modern device — from microcontrollers to real-time operating systems. Critical for automotive, IoT, and industrial automation.",
+    "roles": ["Embedded Systems Engineer", "Firmware Developer", "IoT Engineer", "RTOS Developer"],
+    "skills": ["C/C++ for Embedded", "ARM Cortex", "RTOS", "CAN/SPI/I2C", "PCB Design"]
+  },
+  "communications": {
+    "name": "Communications",
+    "tagline": "Connecting the world through signals",
+    "description": "Design communication systems, wireless networks, and signal processing pipelines. Essential in telecom, aerospace, and 5G infrastructure.",
+    "roles": ["RF Engineer", "Telecommunications Engineer", "Signal Processing Engineer", "Network Engineer"],
+    "skills": ["Digital Signal Processing", "RF Design", "MATLAB", "Wireless Protocols", "Antenna Design"]
+  },
+  "exploreBtn": "Explore Track",
+  "startTestCta": "Not sure which fits you? Take the free test",
+  "typicalRoles": "Typical Roles",
+  "coreSkills": "Core Skills"
+}

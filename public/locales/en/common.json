@@ -1,0 +1,20 @@
+{
+  "free": "Free",
+  "premium": "Premium",
+  "pro": "PRO",
+  "bookSession": "Book a Session",
+  "startAssessment": "Start Assessment",
+  "browseMentors": "Browse Mentors",
+  "seePricing": "See Pricing",
+  "backToHome": "Back to home",
+  "loading": "Loading...",
+  "error": "Something went wrong",
+  "retry": "Try again",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "close": "Close",
+  "next": "Next",
+  "back": "Back",
+  "or": "or"
+}

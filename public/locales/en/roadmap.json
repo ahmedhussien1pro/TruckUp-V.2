@@ -1,0 +1,19 @@
+{
+  "pageTitle": "Your Roadmap",
+  "pageSubtitle": "A structured 90-day plan to build real skills in your track.",
+  "lockedTitle": "Full Roadmap — Premium",
+  "lockedDesc": "Upgrade to Premium to unlock your complete 90-day roadmap with detailed milestones, resources, and progress tracking.",
+  "unlockBtn": "Unlock Full Roadmap",
+  "phase": "Phase {{number}}",
+  "week": "Week {{number}}",
+  "milestone": "Milestone",
+  "resources": "Resources",
+  "freePreview": "Free Preview",
+  "premiumOnly": "Premium Only",
+  "markComplete": "Mark as Complete",
+  "completed": "Completed",
+  "estimatedTime": "Est. {{hours}}h",
+  "yourProgress": "Your Progress",
+  "daysLeft": "{{days}} days left",
+  "selectTrack": "Select a track to view its roadmap"
+}

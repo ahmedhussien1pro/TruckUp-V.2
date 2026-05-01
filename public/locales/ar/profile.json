@@ -1,0 +1,15 @@
+{
+  "pageTitle": "ملفك الشخصي",
+  "editProfile": "تعديل الملف",
+  "yourTrack": "تخصصك",
+  "noTrack": "لم يتم تحديد مسار بعد",
+  "takeTest": "أجرِ الاختبار لتحديد مسارك",
+  "progress": "التقدم",
+  "assessmentResult": "نتيجة التقييم",
+  "memberSince": "عضو منذ {{date}}",
+  "accountType": "نوع الحساب",
+  "upgradePrompt": "قم بالترقية إلى الميز للحصول على خارطة الطريق الكاملة والجلسات",
+  "sessions": "جلساتي",
+  "noSessions": "لم تحجز أي جلسات بعد",
+  "bookFirst": "احجز جلستك الأولى"
+}

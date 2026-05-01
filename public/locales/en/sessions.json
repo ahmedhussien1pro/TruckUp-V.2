@@ -1,0 +1,25 @@
+{
+  "pageTitle": "1:1 Sessions",
+  "pageSubtitle": "Get clarity from engineers who've been where you are.",
+  "bookBtn": "Book Session",
+  "perSession": "per session",
+  "duration": "45 min",
+  "availableSlots": "Available slots",
+  "noSlots": "No available slots right now",
+  "selectSlot": "Select a time slot",
+  "confirmBooking": "Confirm Booking",
+  "bookingSuccess": "Session booked successfully!",
+  "bookingError": "Failed to book session. Please try again.",
+  "mentorBio": "About",
+  "specialization": "Specialization",
+  "experience": "{{years}} years experience",
+  "rating": "{{score}} rating",
+  "reviews": "{{count}} reviews",
+  "whySession": "Why book a session?",
+  "whyPoints": [
+    "Validate your assessment results with a real engineer",
+    "Get a personalized breakdown of your roadmap",
+    "Ask anything — career, skills, job market"
+  ],
+  "paidNote": "Sessions are paid — 99 EGP per session, includes recording."
+}

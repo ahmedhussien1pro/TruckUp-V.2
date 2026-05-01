@@ -1,0 +1,20 @@
+{
+  "free": "مجاني",
+  "premium": "ميز",
+  "pro": "PRO",
+  "bookSession": "احجز جلسة",
+  "startAssessment": "ابدأ التقييم",
+  "browseMentors": "تصفح المدربين",
+  "seePricing": "عرض الأسعار",
+  "backToHome": "العودة للرئيسية",
+  "loading": "جاري التحميل...",
+  "error": "حدث خطأ ما",
+  "retry": "حاول مجددًا",
+  "save": "حفظ",
+  "cancel": "إلغاء",
+  "confirm": "تأكيد",
+  "close": "إغلاق",
+  "next": "التالي",
+  "back": "رجوع",
+  "or": "أو"
+}
