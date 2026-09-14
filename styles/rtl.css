@@ -1,0 +1,38 @@
+/*
+  Additive RTL/LTR safety layer.
+  This file does NOT replace app/globals.css. Import it once, after globals.css,
+  in app/layout.tsx: `import "@/styles/rtl.css"`.
+
+  Goals:
+  - Make horizontal spacing/border utilities direction-aware using logical properties.
+  - Keep icons and directional chevrons mirrored correctly in RTL.
+  - Preserve numerals and code/LTR fragments inside RTL text.
+*/
+
+[dir="rtl"] {
+  text-align: start;
+}
+
+[dir="rtl"] .icon-flip {
+  transform: scaleX(-1);
+}
+
+.ltr-numerals {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid hsl(var(--ring, 217 91% 60%));
+  outline-offset: 2px;
+}
